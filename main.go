@@ -8,7 +8,7 @@ import (
 func main() {
 	r := gin.Default()
 	r.GET("/", func(context *gin.Context) {
-		context.JSON(200, "hello")
+		context.JSON(200, "welcome to Kubernetes")
 	})
 	r.GET("/namespace", service.ListNamespace)
 	r.GET("/deployments", service.ListDeployment)
