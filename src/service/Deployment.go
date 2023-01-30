@@ -9,12 +9,15 @@ import (
 )
 
 type Deployment struct {
+	Namespace           string
 	Name                string
 	Replicas            int32
 	AvailableReplicas   int32
 	UnavailableReplicas int32
 	Images              string
+	CreateTime          string
 	Labels              map[string]string
+	Pods                []*Pod
 }
 
 func ListDeployment(g *gin.Context) {
@@ -61,4 +64,29 @@ func GetPodByDep(ns string, dep *v1.Deployment) []*Pod {
 		}
 	}
 	return pods
+}
+
+func GetDeployment(g *gin.Context) {
+	ns := g.Query("ns")
+	name := g.Query("name")
+	ctx := context.Background()
+	getopt := metaV1.GetOptions{}
+	dps, err := K8sClient.AppsV1().Deployments(ns).Get(ctx, name, getopt)
+	if err != nil {
+		g.Error(err)
+	}
+	ret := make([]*Deployment, 0)
+	ret = append(ret, &Deployment{
+		Namespace:           dps.Namespace,
+		Name:                dps.Name,
+		Replicas:            dps.Status.Replicas,
+		AvailableReplicas:   dps.Status.AvailableReplicas,
+		UnavailableReplicas: dps.Status.UnavailableReplicas,
+		Images:              dps.Spec.Template.Spec.Containers[0].Image,
+		CreateTime:          dps.CreationTimestamp.Format("2006-01-02 15:03:04"),
+		Labels:              dps.Labels,
+		Pods:                GetPodByDep(ns, dps),
+	})
+	g.JSON(200, ret)
+	return
 }
