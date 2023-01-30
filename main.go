@@ -13,5 +13,6 @@ func main() {
 	r.GET("/namespace", service.ListNamespace)
 	r.GET("/deployments", service.ListDeployment)
 	r.GET("/service", service.ListService)
+	r.GET("/pods", service.ListAllPod)
 	r.Run()
 }

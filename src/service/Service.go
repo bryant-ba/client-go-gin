@@ -12,8 +12,8 @@ type Service struct {
 	Type       string
 	ClusterIP  string
 	ExternalIp []string
-	Ports      []string
-	Select     map[string]string
+	//Ports      []string
+	Select map[string]string
 }
 
 func ListService(g *gin.Context) {
@@ -26,13 +26,13 @@ func ListService(g *gin.Context) {
 	ret := make([]*Service, 0)
 	for _, item := range svc.Items {
 		ret = append(ret, &Service{
-			Name:       "",
-			Type:       "",
-			ClusterIP:  "",
-			ExternalIp: nil,
-			Ports:      nil,
-			Select:     nil,
+			Name:       item.Name,
+			Type:       string(item.Spec.Type),
+			ClusterIP:  item.Spec.ClusterIP,
+			ExternalIp: item.Spec.ExternalIPs,
+			Select:     item.Spec.Selector,
 		})
 	}
 	g.JSON(200, svc)
+	return
 }
